@@ -14,9 +14,9 @@
 #include "stdio.h"
 
 int d=0;
-int i;
+int cyfra;
 char numer[12];
-int nadaje = 0;
+int j = 0;
 int dzwoni = 0;
 
 
@@ -24,77 +24,16 @@ void USART1_IRQHandler(void) //odbior dzwoniacego numeru
 {
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
 	{
-		i = USART1->DR;
-		if(nadaje == 1)
+		cyfra = USART1->DR;
+		numer[j] = cyfra;
+		j++;
+		if(j == 11) 
 		{
-			numer[0] = i;
-			nadaje = 2;
-		}
-		else if(nadaje == 2)
-				{
-					numer[1] = i;
-					nadaje = 3;
-				}
-		else if(nadaje == 3)
-				{
-					numer[2] = i;
-					nadaje = 4;
-				}
-		else if(nadaje == 4)
-				{
-					numer[3] = i;
-					nadaje = 5;
-				}
-		else if(nadaje == 5)
-				{
-					numer[4] = i;
-					nadaje = 6;
-				}
-		else if(nadaje == 6)
-						{
-							numer[5] = i;
-							nadaje = 7;
-
-						}
-		else if(nadaje == 7)
-						{
-							numer[6] = i;
-							nadaje = 8;
-						}
-		else if(nadaje == 8)
-						{
-							numer[7] = i;
-							nadaje = 9;
-						}
-		else if(nadaje == 9)
-						{
-							numer[8] = i;
-							nadaje = 10;
-						}
-		else if(nadaje == 10)
-								{
-									numer[9] = i;
-									nadaje = 11;
-								}
-		else if(nadaje == 11)
-								{
-									numer[10] = i;
-									nadaje = 12;
-								}
-		else if(nadaje == 12)
-								{
-									numer[11] = i;
-									nadaje = 0;
-									dzwoni = 1;
-								}
-		if(i == 'x')
-		{
-			nadaje = 1;
+			j = 0;
+			dzwoni = 1;
 		}
 		if(i == 'e')
 				{
-
-					nadaje = 0;
 					dzwoni = 0;
 					PCD8544_Clear();
 					PCD8544_Refresh();
