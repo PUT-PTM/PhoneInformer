@@ -1,24 +1,11 @@
-#include <stm32f4xx_exti.h>
-#include <stm32f4xx_tim.h>
-#include <stm32f4xx_syscfg.h>
-#include "tm_stm32f4_gpio.h"
 #include "tm_stm32f4_pcd8544.h"
-#include "tm_stm32f4_spi.h"
-#include "stm32f4xx_usart.h"
-#include "stm32f4xx_rcc.h"
-#include "stm32f4xx_gpio.h"
-#include "misc.h"
-#include "string.h"
 #include "ringtone.h"
-#include "stdlib.h"
-#include "stdio.h"
 
 int d=0;
 int cyfra;
-char numer[12];
+char numer[13];
 int j = 0;
 int dzwoni = 0;
-
 
 void USART1_IRQHandler(void) //odbior dzwoniacego numeru
 {
@@ -26,27 +13,27 @@ void USART1_IRQHandler(void) //odbior dzwoniacego numeru
 	{
 		cyfra = USART1->DR;
 		numer[j] = cyfra;
-		j++;
-		if(j == 11) 
+		if(j == 11)
 		{
 			j = 0;
 			dzwoni = 1;
 		}
-		if(i == 'e')
-				{
-					dzwoni = 0;
-					PCD8544_Clear();
-					PCD8544_Refresh();
-				}
+		else if(cyfra != 'e') j++;
+		if(cyfra == 'e')
+		{
+			dzwoni = 0;
+			PCD8544_Clear();
+			PCD8544_Refresh();
+		}
 		 if(dzwoni == 1)
 		{
 
-			    PCD8544_Clear();
-				PCD8544_GotoXY(0, 14);
-				PCD8544_Puts(numer , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
-				PCD8544_GotoXY(0, 28);
-				PCD8544_Puts("dzwoni..." , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
-				PCD8544_Refresh();
+			PCD8544_Clear();
+			PCD8544_GotoXY(0, 14);
+			PCD8544_Puts(numer, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+			PCD8544_GotoXY(0, 28);
+			PCD8544_Puts("dzwoni..." , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+			PCD8544_Refresh();
 		}
 	}
 }
@@ -55,12 +42,12 @@ void TIM3_IRQHandler(void) //dzwonek
          	if(TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
          	{
          		if(dzwoni == 1)
-         			{
+         		{
          			DAC_Cmd(DAC_Channel_1, ENABLE);
-         			DAC_SetChannel1Data(DAC_Align_12b_R, rawData[d]);
+         			DAC_SetChannel1Data(DAC_Align_12b_R, rawData[d]*1.5);
          			d++;
          			if(d > 105677) d = 0;
-         			}
+         		}
          		else
          		{
          			d = 0;
@@ -136,7 +123,7 @@ void DAC_Configuration(void)
 	DAC_Init(DAC_Channel_1, &DAC_InitStructure);
 	DAC_Cmd(DAC_Channel_1, ENABLE);
 }
-void TIM3_Configuration(void)
+void TIM3_Configuration(void) // DAC
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_TimeBaseStructure.TIM_Period = 104;
@@ -164,7 +151,6 @@ int main(void)
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA , ENABLE); // DAC
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     NVIC_Configuration();
@@ -174,6 +160,12 @@ int main(void)
 	DAC_Configuration();
 	TIM3_Configuration();
 	PCD8544_Init(0x25); // LCD
+	PCD8544_Write(PCD8544_LCD_TEMP, 0x01);
+	PCD8544_Clear();
+	PCD8544_GotoXY(0, 14);
+	PCD8544_Puts("PHONE INFORMER" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+	PCD8544_Refresh();
+	numer[12]='\0';
     while(1)
     {
 

@@ -388,7 +388,7 @@ void PCD8544_Clear(void) {
 	PCD8544_Home();
 	for (i = 0; i < PCD8544_BUFFER_SIZE; i++) {
 		PCD8544_Buffer[i] = 0x00;
-		//PCD8544_Write(PCD8544_DATA, 0x00);
+		PCD8544_Write(PCD8544_DATA, 0x00);
 	}
 	PCD8544_GotoXY(0, 0);
 	PCD8544_UpdateArea(0, 0, PCD8544_WIDTH - 1, PCD8544_HEIGHT - 1);
