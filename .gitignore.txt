@@ -1,0 +1,8 @@
+*.exe
+*.o
+*.xml
+*.ld
+
+startup/
+Debug/
+Utilities/
