@@ -1,5 +1,4 @@
-/* C:\Users\Kuba\Desktop\vlc-record-2018-03-19-15h16m42s-iphone_6_original.wav (19.03.2018 15:27:52)
-   StartOffset: 00000000, EndOffset: 00019CCD, D³ugoœæ: 00019CCE */
+
 #include "stm32f4xx.h"
 const u8 rawData[105678] = {
 	0x52, 0x49, 0x46, 0x46, 0xC6, 0x9C, 0x01, 0x00, 0x57, 0x41, 0x56, 0x45,
