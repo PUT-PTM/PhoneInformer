@@ -1,6 +1,7 @@
 #include "tm_stm32f4_pcd8544.h"
 #include "ringtone.h"
 #include "Nokia_Sms.h"
+#include "bells.h"
 
 char sign;
 char number[13];
@@ -9,7 +10,7 @@ unsigned int d = 0;
 uint8_t is_calling = 0;
 uint8_t sms_came = 0;
 uint8_t sms_ringtone=0;
-
+uint8_t bell_image=0;
 void USART1_IRQHandler(void)
 {
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
@@ -44,7 +45,7 @@ void USART1_IRQHandler(void)
 				PCD8544_GotoXY(0, 14);
 				PCD8544_Puts(number, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
 				PCD8544_GotoXY(0, 28);
-				PCD8544_Puts("is_calling..." , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+				PCD8544_Puts("is calling" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
 				PCD8544_Refresh();
 			}
 		}
@@ -100,6 +101,26 @@ void TIM3_IRQHandler(void) //dzwonek
          			DAC_Cmd(DAC_Channel_1, DISABLE);
          		}
                 	TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+         	}
+}
+void TIM2_IRQHandler(void) //animacje
+{
+         	if(TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+         	{
+         		if(is_calling)
+         		{
+         			switch(bell_image)
+         			{
+         			case 0: Draw_Bell(bell); bell_image++; break;
+         			case 1: Draw_Bell(bell_left); bell_image++; break;
+         			case 2: Draw_Bell(bell_right); bell_image=0; break;
+         			}
+         		}
+         		else if(sms_came)
+         		{
+
+         		}
+         		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
          	}
 }
 void EXTI0_IRQHandler(void)
@@ -172,6 +193,14 @@ void NVIC_Configuration(void)
   TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
   TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 
+  NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+  TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+
   NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
@@ -198,6 +227,16 @@ void TIM3_Configuration(void) // DAC
 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 	TIM_Cmd(TIM3, ENABLE);
 }
+void TIM2_Configuration(void)
+{
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+	TIM_TimeBaseStructure.TIM_Period = 6999;
+	TIM_TimeBaseStructure.TIM_Prescaler = 2999;
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseStructure.TIM_CounterMode =  TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	TIM_Cmd(TIM2, ENABLE);
+}
 int main(void)
 {
 	SystemInit();
@@ -206,6 +245,7 @@ int main(void)
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA , ENABLE); // DAC
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     NVIC_Configuration();
@@ -214,6 +254,7 @@ int main(void)
     USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 	DAC_Configuration();
 	TIM3_Configuration();
+	TIM2_Configuration();
 
 	PCD8544_Init(0x25);
 	PCD8544_Clear();

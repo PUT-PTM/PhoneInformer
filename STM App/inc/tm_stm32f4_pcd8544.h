@@ -321,7 +321,7 @@ extern void PCD8544_Putc(char c, PCD8544_Pixel_t color, PCD8544_FontSize_t size)
  * 		- PCD8544_Pixel_Clear
  */
 extern void PCD8544_Puts(char *c, PCD8544_Pixel_t color, PCD8544_FontSize_t size);
-
+extern void Draw_Bell(uint16_t* tab);
 /**
  * Draw line on LCD
  *

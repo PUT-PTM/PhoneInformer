@@ -445,7 +445,22 @@ void PCD8544_GotoXY(unsigned char x, unsigned char y) {
 	PCD8544_x = x;
 	PCD8544_y = y;
 }
-
+void Draw_Bell(uint16_t* tab)
+{
+	unsigned char c_height, c_width, i, b, j;
+	PCD8544_GotoXY(50, 28);
+	c_width = 10;
+	c_height = 12;
+	for (i = 0; i < c_width; i++) {
+		b = tab[i];
+		for (j = 0; j < c_height; j++) {
+			PCD8544_DrawPixel(PCD8544_x, (PCD8544_y + j), ((b >> j) & 1) ? PCD8544_Pixel_Set : PCD8544_Pixel_Clear);
+		}
+		PCD8544_x++;
+	}
+	PCD8544_x++;
+	PCD8544_Refresh();
+}
 void PCD8544_Putc(char c, PCD8544_Pixel_t color, PCD8544_FontSize_t size) {
 	unsigned char c_height, c_width, i, b, j;
 	if (size == PCD8544_FontSize_3x5) {
