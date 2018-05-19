@@ -394,7 +394,6 @@ void PCD8544_Clear(void) {
 	PCD8544_UpdateArea(0, 0, PCD8544_WIDTH - 1, PCD8544_HEIGHT - 1);
 	PCD8544_Refresh();
 }
-
 void PCD8544_Home(void) {
 	PCD8544_Write(PCD8544_COMMAND, PCD8544_SETXADDR | 0);
 	PCD8544_Write(PCD8544_COMMAND, PCD8544_SETYADDR | 0);
@@ -447,10 +446,40 @@ void PCD8544_GotoXY(unsigned char x, unsigned char y) {
 }
 void Draw_Bell(uint16_t* tab)
 {
-	unsigned char c_height, c_width, i, b, j;
-	PCD8544_GotoXY(50, 28);
+	uint16_t c_height, c_width, i, b, j;
+	int x = 60;
+	int y = 25;
+	PCD8544_GotoXY(x, y);
+	for (i = x; i < x+11; i++) {
+			for (j = y; j < y+11; j++) {
+				PCD8544_DrawPixel(i, j, PCD8544_Pixel_Clear);
+			}
+		}
 	c_width = 10;
-	c_height = 12;
+	c_height = 11;
+	for (i = 0; i < c_width; i++) {
+		b = tab[i];
+		for (j = 0; j < c_height; j++) {
+			PCD8544_DrawPixel(PCD8544_x, (PCD8544_y + j), ((b >> j) & 1) ? PCD8544_Pixel_Set : PCD8544_Pixel_Clear);
+		}
+		PCD8544_x++;
+	}
+	PCD8544_x++;
+	PCD8544_Refresh();
+}
+void Draw_Envelope(uint16_t* tab)
+{
+	uint16_t c_height, c_width, i, b, j;
+	int x = 60;
+	int y = 25;
+	PCD8544_GotoXY(x, y);
+	for (i = x; i < x+11; i++) {
+			for (j = y; j < y+11; j++) {
+				PCD8544_DrawPixel(i, j, PCD8544_Pixel_Clear);
+			}
+		}
+	c_width = 10;
+	c_height = 14;
 	for (i = 0; i < c_width; i++) {
 		b = tab[i];
 		for (j = 0; j < c_height; j++) {

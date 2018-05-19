@@ -2,6 +2,7 @@
 #include "ringtone.h"
 #include "Nokia_Sms.h"
 #include "bells.h"
+#include "envelopes.h"
 
 char sign;
 char number[13];
@@ -11,17 +12,20 @@ uint8_t is_calling = 0;
 uint8_t sms_came = 0;
 uint8_t sms_ringtone=0;
 uint8_t bell_image=0;
+uint8_t bell_flag=0;
+uint8_t env_image=0;
+
 void USART1_IRQHandler(void)
 {
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
 	{
 		sign = USART1->DR;
-		if(sign == 's') // jesli przyjdzie SMS
+		if(sign == 's') // if SMS came
 		{
 			sms_came = 1;
 			sms_ringtone = 1;
 		}
-		if(!sms_came) //polaczenie, zczytywanie kolejnych cyfr numberu
+		if(!sms_came) // call
 		{
 			number[j] = sign;
 			if(j == 11)
@@ -51,7 +55,7 @@ void USART1_IRQHandler(void)
 		}
 		else  // SMS
 		{
-			if(sign != 's') //pomija znacznik ze przyszedl SMS i zczytuje kolejne cyfry numberu nadawcy
+			if(sign != 's') //skips SMS marker and reads number
 			{
 				number[j] = sign;
 				if(j == 11)
@@ -64,8 +68,8 @@ void USART1_IRQHandler(void)
 				{
 					PCD8544_Clear();
 					PCD8544_GotoXY(0, 7);
-					PCD8544_Puts("Dostales SMS", PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
-					PCD8544_GotoXY(0, 28);
+					PCD8544_Puts("SMS from", PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+					PCD8544_GotoXY(0, 18);
 					PCD8544_Puts(number, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
 					PCD8544_Refresh();
 				}
@@ -73,14 +77,14 @@ void USART1_IRQHandler(void)
 		}
 	}
 }
-void TIM3_IRQHandler(void) //dzwonek
+void TIM3_IRQHandler(void) //ringtone
 {
          	if(TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
          	{
          		if(is_calling == 1)
          		{
          			DAC_Cmd(DAC_Channel_1, ENABLE);
-         			DAC_SetChannel1Data(DAC_Align_12b_R, ringtone[d]*2); //dzwonek polaczenia
+         			DAC_SetChannel1Data(DAC_Align_12b_R, ringtone[d]*2);
          			d++;
          			if(d > 105677) d = 0;
          		}
@@ -103,7 +107,7 @@ void TIM3_IRQHandler(void) //dzwonek
                 	TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
          	}
 }
-void TIM2_IRQHandler(void) //animacje
+void TIM2_IRQHandler(void) //animations
 {
          	if(TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
          	{
@@ -111,14 +115,18 @@ void TIM2_IRQHandler(void) //animacje
          		{
          			switch(bell_image)
          			{
-         			case 0: Draw_Bell(bell); bell_image++; break;
-         			case 1: Draw_Bell(bell_left); bell_image++; break;
-         			case 2: Draw_Bell(bell_right); bell_image=0; break;
+         			case 0: Draw_Bell(bell); bell_image++; bell_flag=0; break;
+         			case 1: Draw_Bell(bell_left); if(bell_flag==1)bell_image=0; else bell_image=2; break;
+         			case 2: Draw_Bell(bell_right); bell_image=1; bell_flag=1; break;
          			}
          		}
          		else if(sms_came)
          		{
-
+         			switch(env_image)
+         			{
+         			case 0: Draw_Envelope(env_closed); env_image++; break;
+         			case 1: Draw_Envelope(env_opened); env_image--; break;
+         			}
          		}
          		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
          	}
@@ -148,7 +156,6 @@ void GPIO_Configuration(void)
   GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
   GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
 
-  //inicjalizacja wyjœcia DAC
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
@@ -230,8 +237,8 @@ void TIM3_Configuration(void) // DAC
 void TIM2_Configuration(void)
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-	TIM_TimeBaseStructure.TIM_Period = 6999;
-	TIM_TimeBaseStructure.TIM_Prescaler = 2999;
+	TIM_TimeBaseStructure.TIM_Period = 7999; // 6999;
+	TIM_TimeBaseStructure.TIM_Prescaler = 3359; //2999;
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode =  TIM_CounterMode_Up;
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
