@@ -6,17 +6,18 @@ PhoneInformer is a project build on STM32. It receives of information, via Bluet
 
 ## 2.Description
 
-###2.1 Tools
+### 2.1 Tools
 * Microcontroller STM32F407VG DISCOVERY
 * Bluetooth HC-06 module
 * Nokia 3310 LCD screen 
 * LM386M amplifier module with loudspeaker
 * Smartphone with Android system
 
-###2.2 How to run
+### 2.2 How to run
 Wire connections:
 ...
-###2.3 How to compile
+
+### 2.3 How to compile
 Compilation takes place without any special instructions.
 
 ## 3.Future improvements
