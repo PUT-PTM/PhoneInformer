@@ -14,6 +14,7 @@ uint8_t sms_ringtone=0;
 uint8_t bell_image=0;
 uint8_t bell_flag=0;
 uint8_t env_image=0;
+uint8_t sms_f=0;
 
 void USART1_IRQHandler(void)
 {
@@ -66,6 +67,7 @@ void USART1_IRQHandler(void)
 				else j++;
 				if(!sms_came)
 				{
+					sms_f=1;
 					PCD8544_Clear();
 					PCD8544_GotoXY(0, 7);
 					PCD8544_Puts("SMS from", PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
@@ -120,7 +122,7 @@ void TIM2_IRQHandler(void) //animations
          			case 2: Draw_Bell(bell_right); bell_image=1; bell_flag=1; break;
          			}
          		}
-         		else if(sms_came)
+         		else if(sms_f)
          		{
          			switch(env_image)
          			{
@@ -135,6 +137,7 @@ void EXTI0_IRQHandler(void)
 {
          	if(EXTI_GetITStatus(EXTI_Line0) != RESET)
          	{
+         		sms_f=0;
          		PCD8544_Clear();
          		PCD8544_GotoXY(0, 14);
          		PCD8544_Puts("PHONE INFORMER" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);

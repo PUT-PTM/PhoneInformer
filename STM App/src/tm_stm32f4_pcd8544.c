@@ -470,8 +470,8 @@ void Draw_Bell(uint16_t* tab)
 void Draw_Envelope(uint16_t* tab)
 {
 	uint16_t c_height, c_width, i, b, j;
-	int x = 60;
-	int y = 25;
+	int x = 38;
+	int y = 30;
 	PCD8544_GotoXY(x, y);
 	for (i = x; i < x+11; i++) {
 			for (j = y; j < y+11; j++) {
