@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
     public void sms(String smsnr){
         String contact = getContactName(smsnr,getApplicationContext());
         if(contact.length() > 1){
-            sendData("S"+contact);}
+            sendData("S"+contact+".");}
         else{
             sendData("s"+smsnr);
         }
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     public void call(String nr){
         String contact = getContactName(nr, getApplicationContext());
         if(contact.length() > 1){
-            sendData("C"+contact);}
+            sendData("C"+contact+".");}
         else{
             sendData("c"+nr);
         }
