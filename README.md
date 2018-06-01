@@ -1,30 +1,50 @@
 # PhoneInformer
 
 ## 1.Overview
-
 PhoneInformer is a project build on STM32. It receives of information, via Bluetooth, about incoming calls and SMS messages on smartphone, displays it on the screen and notifies with sound.
 
 ## 2.Description
+The project consists of an Android application and a STM32 application. Android app send information about calls and SMS to STM32 which displays received data on screen. If a number that contacts us is in our contacts list in smartphone, the name instead of number will be displayed on the screen. 
 
-### 2.1 Tools
+## 3.Tools
 * Microcontroller STM32F407VG DISCOVERY
 * Bluetooth HC-06 module
 * Nokia 3310 LCD screen 
 * LM386M amplifier module with loudspeaker
 * Smartphone with Android system
 
-### 2.2 How to run
+## 4.How to run
 Wire connections:
-...
+* LCD screen:
+ RST -> PC15	
+ CE	 -> PC13		
+ DC	 ->	PC14		
+ DIN -> PC3			
+ CLK -> PB10		
+ VCC -> 3.3V		
+ GND -> GND	
+ * Bluetooth module				
+ RX  -> PA9			
+ TX  -> PA10		
+ VCC -> 3.3V		
+ GND -> GND	
+ * Loudspeaker
+ AIN -> PA4
+ VCC -> 3.3V
+ GND -> GND
+ 5V -> 5V
 
-### 2.3 How to compile
+## 5.How to compile
 Compilation takes place without any special instructions.
 
-## 3.Future improvements
+## 6.Future improvements
+In the future, battery power supply can be can be added to the project. It can be also extended by adding control buttons and menu options.
 
-## 4.Attributions
+## 7.Attributions
+In project were used: 
+* NOKIA 3310/5110 LCD STM32F4/29 LIBRARY written by Tilen Majerle - [link](https://stm32f4-discovery.net/pcd8544-nokia-33105110-lcd-stm32f429-discovery-library/)
 
-## 5.Credits
+## 8.Credits
 * **Jakub Kolasiński** - [kubakolas](https://github.com/kubakolas)
 * **Kacper Kociubiński** - [kociuba1997](https://github.com/kociuba1997)
 
