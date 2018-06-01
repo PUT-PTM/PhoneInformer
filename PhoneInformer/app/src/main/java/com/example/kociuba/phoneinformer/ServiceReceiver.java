@@ -5,10 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.Toast;
 
 public class ServiceReceiver extends BroadcastReceiver {
 
+    int a =0;
+
+    String TAG = "ServiceReciver";
     @Override
     public void onReceive(final Context context,final Intent intent) {
         TelephonyManager telephony = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -29,13 +33,21 @@ public class ServiceReceiver extends BroadcastReceiver {
                 MainActivity activity = MainActivity.instance;
 
 
-                if (activity != null) {
-                    // we are calling here activity's method
-                    activity.call(incomingNumber);
-                }
+
+
+                    if (activity != null) {
+                        // we are calling here activity's method
+                            Log.d(TAG, "Call function");
+                            activity.call(incomingNumber);
+                    }
+
+
+
 
               if (stateStr.equals(TelephonyManager.EXTRA_STATE_IDLE)) { // warunek konczenia
+                 Log.d(TAG, "DeCall function");
                   activity.decall();
+
                }
 
             }

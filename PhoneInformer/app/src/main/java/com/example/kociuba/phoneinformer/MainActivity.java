@@ -4,7 +4,10 @@ package com.example.kociuba.phoneinformer;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -30,10 +33,12 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
+
+
 public class MainActivity extends AppCompatActivity {
-
-    static boolean incomingsms = false;
-
+    static boolean callflag = true; // dwa razy wysyła c
+    static boolean incoming = false;
+    int a =0;
     static MainActivity instance;
 
     private static final String TAG = "bluetooth1";
@@ -98,18 +103,49 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public String getContactName(final String phoneNumber, Context context)
+    {
+        Uri uri=Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+
+        String[] projection = new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME};
+
+        String contactName="";
+        Cursor cursor=context.getContentResolver().query(uri,projection,null,null,null);
+
+        if (cursor != null) {
+            if(cursor.moveToFirst()) {
+                contactName=cursor.getString(0);
+            }
+            cursor.close();
+        }
+
+        return contactName;
+    }
+
     public void sms(String smsnr){
-        sendData("s"+smsnr);
+        String contact = getContactName(smsnr,getApplicationContext());
+        if(contact.length() > 1){
+            sendData("S"+contact+".");}
+        else{
+            sendData("s"+smsnr);
+        }
         Toast.makeText(getBaseContext(), "SendetSMS", Toast.LENGTH_SHORT).show();
     }
 
     public void call(String nr){
-        sendData(nr);
+        String contact = getContactName(nr, getApplicationContext());
+        if(contact.length() > 1){
+            sendData("C"+contact+".");}
+        else{
+            sendData("c"+nr);
+        }
+
         Toast.makeText(getBaseContext(), "Call", Toast.LENGTH_SHORT).show();
     }
 
     public void decall(){
-        sendData("e");
+       sendData("e");
+       callflag=true;
         Toast.makeText(getBaseContext(), "DeCall", Toast.LENGTH_SHORT).show();
     }
 
@@ -128,48 +164,52 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        if(a<1) {
+            a++;
+            Log.d(TAG, "...onResume - try connect...");
 
-        Log.d(TAG, "...onResume - try connect...");
+            // Set up a pointer to the remote node using it's address.
+            BluetoothDevice device = btAdapter.getRemoteDevice(address);
 
-        // Set up a pointer to the remote node using it's address.
-        BluetoothDevice device = btAdapter.getRemoteDevice(address);
+            // Two things are needed to make a connection:
+            //   A MAC address, which we got above.
+            //   A Service ID or UUID.  In this case we are using the
+            //     UUID for SPP.
 
-        // Two things are needed to make a connection:
-        //   A MAC address, which we got above.
-        //   A Service ID or UUID.  In this case we are using the
-        //     UUID for SPP.
-
-        try {
-            btSocket = createBluetoothSocket(device);
-        } catch (IOException e1) {
-            errorExit("Fatal Error", "In onResume() and socket create failed: " + e1.getMessage() + ".");
-        }
-
-        // Discovery is resource intensive.  Make sure it isn't going on
-        // when you attempt to connect and pass your message.
-        btAdapter.cancelDiscovery();
-
-        // Establish the connection.  This will block until it connects.
-        Log.d(TAG, "...Connecting...");
-        try {
-            btSocket.connect();
-            Log.d(TAG, "...Connection ok...");
-        } catch (IOException e) {
             try {
-                btSocket.close();
-            } catch (IOException e2) {
-                errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
+                btSocket = createBluetoothSocket(device);
+            } catch (IOException e1) {
+                errorExit("Fatal Error", "In onResume() and socket create failed: " + e1.getMessage() + ".");
+            }
+
+            // Discovery is resource intensive.  Make sure it isn't going on
+            // when you attempt to connect and pass your message.
+            btAdapter.cancelDiscovery();
+
+            // Establish the connection.  This will block until it connects.
+            Log.d(TAG, "...Connecting...");
+            try {
+                btSocket.connect();
+                Log.d(TAG, "...Connection ok...");
+
+            } catch (IOException e) {
+                try {
+                    btSocket.close();
+                } catch (IOException e2) {
+                    errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
+                }
+            }
+
+            // Create a data stream so we can talk to server.
+            Log.d(TAG, "...Create Socket...");
+
+            try {
+                outStream = btSocket.getOutputStream();
+            } catch (IOException e) {
+                errorExit("Fatal Error", "In onResume() and output stream creation failed:" + e.getMessage() + ".");
             }
         }
 
-        // Create a data stream so we can talk to server.
-        Log.d(TAG, "...Create Socket...");
-
-        try {
-            outStream = btSocket.getOutputStream();
-        } catch (IOException e) {
-            errorExit("Fatal Error", "In onResume() and output stream creation failed:" + e.getMessage() + ".");
-        }
     }
 
     @Override
@@ -182,15 +222,15 @@ public class MainActivity extends AppCompatActivity {
             try {
                 outStream.flush();
             } catch (IOException e) {
-                errorExit("Fatal Error", "In onPause() and failed to flush output stream: " + e.getMessage() + ".");
+                //errorExit("Fatal Error", "In onPause() and failed to flush output stream: " + e.getMessage() + ".");
             }
         }
 
-        try     {
-            btSocket.close();
-        } catch (IOException e2) {
-            errorExit("Fatal Error", "In onPause() and failed to close socket." + e2.getMessage() + ".");
-        }
+       // try     {
+            //btSocket.close();
+        //} catch (IOException e2) {
+           // errorExit("Fatal Error", "In onPause() and failed to close socket." + e2.getMessage() + ".");
+       // }
     }
 
     private void checkBTState() {
@@ -219,15 +259,22 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "...Send data: " + message + "...");
 
+            try {
+                outStream.flush();
+            } catch (IOException e) {
+                errorExit("Fatal Error", "In onPause() and failed to flush output stream: " + e.getMessage() + ".");
+            }
+
         try {
             outStream.write(msgBuffer);
+            Log.d(TAG, "...Send dataBuffer: " + msgBuffer.toString() + "...");
         } catch (IOException e) {
             String msg = "In onResume() and an exception occurred during write: " + e.getMessage();
             if (address.equals("00:00:00:00:00:00"))
                 msg = msg + ".\n\nUpdate your server address from 00:00:00:00:00:00 to the correct address on line 35 in the java code";
             msg = msg +  ".\n\nCheck that the SPP UUID: " + MY_UUID.toString() + " exists on server.\n\n";
 
-            errorExit("Fatal Error", msg);
+           // errorExit("Fatal Error", msg);
         }
     }
 
