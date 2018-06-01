@@ -6,6 +6,7 @@
 
 char sign;
 char number[13];
+char name[20];
 unsigned int j = 0;
 unsigned int d = 0;
 uint8_t is_calling = 0;
@@ -15,19 +16,72 @@ uint8_t bell_image=0;
 uint8_t bell_flag=0;
 uint8_t env_image=0;
 uint8_t sms_f=0;
-
+uint8_t v = 0;
+uint8_t x = 0;
 void USART1_IRQHandler(void)
 {
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
 	{
 		sign = USART1->DR;
-		if(sign == 's') // if SMS came
+		if(x == 0)
+		switch(sign)
 		{
-			sms_came = 1;
-			sms_ringtone = 1;
+		case 'c': v = 1; x = 1; return;
+		case 's': v = 2; x = 1; sms_ringtone=1; sms_came=1; return;
+		case 'C': v = 3; x = 1; return;
+		case 'S': v = 4; x = 1; sms_ringtone=1; sms_came=1; return;
 		}
-		if(!sms_came) // call
+		if(v == 2)// SMS
 		{
+			number[j] = sign;
+			if(j == 11)
+			{
+				j = 0;
+				sms_came = 0;
+			}
+			else j++;
+			if(!sms_came)
+			{
+				sms_f=1;
+				PCD8544_Clear();
+				PCD8544_GotoXY(0, 7);
+				PCD8544_Puts("SMS from", PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+				PCD8544_GotoXY(0, 18);
+				PCD8544_Puts(number, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+				PCD8544_Refresh();
+				x=0;
+			}
+
+		}
+		else if(v == 4)// SMS by name
+		{
+			if(sign == '.')
+			{
+			   	name[j] = '\0';
+				j = 0;
+			    sms_came=0;
+			}
+			else
+			{
+			   name[j] = sign;
+			   j++;
+			}
+			if(!sms_came)
+			{
+				sms_f=1;
+				PCD8544_Clear();
+				PCD8544_GotoXY(0, 7);
+				PCD8544_Puts("SMS from", PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+				PCD8544_GotoXY(0, 18);
+				PCD8544_Puts(name, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+				PCD8544_Refresh();
+				x=0;
+			}
+
+		}
+		else if(v==1) // call
+		{
+            if(sign != 'e')
 			number[j] = sign;
 			if(j == 11)
 			{
@@ -37,15 +91,16 @@ void USART1_IRQHandler(void)
 			else if(sign != 'e') j++;
 			if(sign == 'e')
 			{
+				sms_f=0;
 				is_calling = 0;
 				PCD8544_Clear();
 				PCD8544_GotoXY(0, 14);
 				PCD8544_Puts("PHONE INFORMER" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
 				PCD8544_Refresh();
+				x=0;
 			}
 			if(is_calling)
 			{
-
 				PCD8544_Clear();
 				PCD8544_GotoXY(0, 14);
 				PCD8544_Puts(number, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
@@ -53,30 +108,44 @@ void USART1_IRQHandler(void)
 				PCD8544_Puts("is calling" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
 				PCD8544_Refresh();
 			}
+
 		}
-		else  // SMS
+		else if(v==3) // call by name
 		{
-			if(sign != 's') //skips SMS marker and reads number
-			{
-				number[j] = sign;
-				if(j == 11)
-				{
-					j = 0;
-					sms_came = 0;
+
+			        if(sign == '.')
+					{
+			        	name[j] = '\0';
+						j = 0;
+						is_calling = 1;
+					}
+			        else if (sign != 'e')
+			        {
+					   name[j] = sign;
+					   j++;
+			        }
+					if(sign == 'e' && is_calling)
+					{
+						sms_f=0;
+						is_calling = 0;
+						PCD8544_Clear();
+						PCD8544_GotoXY(0, 14);
+						PCD8544_Puts("PHONE INFORMER" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+						PCD8544_Refresh();
+						x=0;
+					}
+					if(is_calling)
+					{
+
+						PCD8544_Clear();
+						PCD8544_GotoXY(0, 14);
+						PCD8544_Puts(name, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+						PCD8544_GotoXY(0, 28);
+						PCD8544_Puts("is calling" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+						PCD8544_Refresh();
+					}
 				}
-				else j++;
-				if(!sms_came)
-				{
-					sms_f=1;
-					PCD8544_Clear();
-					PCD8544_GotoXY(0, 7);
-					PCD8544_Puts("SMS from", PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
-					PCD8544_GotoXY(0, 18);
-					PCD8544_Puts(number, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
-					PCD8544_Refresh();
-				}
-			}
-		}
+
 	}
 }
 void TIM3_IRQHandler(void) //ringtone
