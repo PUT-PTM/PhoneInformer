@@ -3,7 +3,7 @@
 #include "Nokia_Sms.h"
 #include "bells.h"
 #include "envelopes.h"
-
+#include "logo.h"
 char sign;
 char number[13];
 char name[20];
@@ -94,8 +94,10 @@ void USART1_IRQHandler(void)
 				sms_f=0;
 				is_calling = 0;
 				PCD8544_Clear();
-				PCD8544_GotoXY(0, 14);
-				PCD8544_Puts("PHONE INFORMER" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+				PCD8544_GotoXY(0, 7);
+				PCD8544_Puts(number, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+				PCD8544_GotoXY(0, 18);
+				PCD8544_Puts("called you!", PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
 				PCD8544_Refresh();
 				x=0;
 			}
@@ -129,8 +131,10 @@ void USART1_IRQHandler(void)
 						sms_f=0;
 						is_calling = 0;
 						PCD8544_Clear();
-						PCD8544_GotoXY(0, 14);
-						PCD8544_Puts("PHONE INFORMER" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+						PCD8544_GotoXY(0, 7);
+						PCD8544_Puts(name, PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+						PCD8544_GotoXY(0, 18);
+						PCD8544_Puts("called you!", PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
 						PCD8544_Refresh();
 						x=0;
 					}
@@ -208,8 +212,9 @@ void EXTI0_IRQHandler(void)
          	{
          		sms_f=0;
          		PCD8544_Clear();
-         		PCD8544_GotoXY(0, 14);
+         		PCD8544_GotoXY(0, 9);
          		PCD8544_Puts("PHONE INFORMER" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+         		Draw_Logo(log);
          		PCD8544_Refresh();
          		EXTI_ClearITPendingBit(EXTI_Line0);
          	}
@@ -337,8 +342,9 @@ int main(void)
 
 	PCD8544_Init(0x25);
 	PCD8544_Clear();
-	PCD8544_GotoXY(0, 14);
+	PCD8544_GotoXY(0, 9);
 	PCD8544_Puts("PHONE INFORMER" , PCD8544_Pixel_Set, PCD8544_FontSize_5x7);
+	Draw_Logo(log);
 	PCD8544_Refresh();
 	number[12]='\0';
     while(1){}
