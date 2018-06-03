@@ -25,9 +25,9 @@ public class ServiceReceiver extends BroadcastReceiver {
                 String stateStr = intent.getExtras().getString(TelephonyManager.EXTRA_STATE); // stan dla konczenia rozmow
 
                 int duration = Toast.LENGTH_LONG;
-                Toast toast = Toast.makeText(context,
+               /* Toast toast = Toast.makeText(context,
                         "incomingNumber: "+ incomingNumber , duration);
-                toast.show();
+                toast.show();*/
 
                 // getting the static instance of activity
                 MainActivity activity = MainActivity.instance;
@@ -37,16 +37,18 @@ public class ServiceReceiver extends BroadcastReceiver {
 
                     if (activity != null) {
                         // we are calling here activity's method
+                        if (stateStr.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
                             Log.d(TAG, "Call function");
                             activity.call(incomingNumber);
+                        }
                     }
 
 
 
 
-              if (stateStr.equals(TelephonyManager.EXTRA_STATE_IDLE)) { // warunek konczenia
-                 Log.d(TAG, "DeCall function");
-                  activity.decall();
+              if (stateStr.equals(TelephonyManager.EXTRA_STATE_IDLE) || stateStr.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) { // warunek konczenia
+                      Log.d(TAG, "DeCall function");
+                      activity.decall();
 
                }
 

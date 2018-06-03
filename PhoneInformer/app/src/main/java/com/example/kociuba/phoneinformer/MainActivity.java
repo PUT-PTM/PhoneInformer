@@ -24,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -53,10 +54,11 @@ public class MainActivity extends AppCompatActivity {
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     // MAC-address of Bluetooth module (you must edit this line)
-    private static String address = "30:14:08:18:09:10";
+    private static String address = "30:14:08:18:09:10"; //"30:14:08:18:09:10"  "B8:81:98:43:93:19"
 
 
     Button b1,b2,b3,b4;
+    TextView newtext;
     private BluetoothAdapter BA;
     private Set<BluetoothDevice>pairedDevices;
     ListView lv;
@@ -70,9 +72,10 @@ public class MainActivity extends AppCompatActivity {
         b2=(Button)findViewById(R.id.button2);
         b3=(Button)findViewById(R.id.button3);
         b4=(Button)findViewById(R.id.button4);
+        newtext = (TextView) findViewById(R.id.textView2);
 
-        btnOn = (Button) findViewById(R.id.btnOn);
-        btnOff = (Button) findViewById(R.id.btnOff);
+        /*btnOn = (Button) findViewById(R.id.btnOn);
+        btnOff = (Button) findViewById(R.id.btnOff);*/
 
         BA = BluetoothAdapter.getDefaultAdapter();
         lv = (ListView)findViewById(R.id.listView);
@@ -81,19 +84,19 @@ public class MainActivity extends AppCompatActivity {
         checkBTState();
 
 
-        btnOn.setOnClickListener(new View.OnClickListener() {
+        /*btnOn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendData("s+48515137538");
                 Toast.makeText(getBaseContext(), "SendetSMS", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
-        btnOff.setOnClickListener(new View.OnClickListener() {
+        /*btnOff.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendData("+48515137538");
                 Toast.makeText(getBaseContext(), "Call", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
 
         instance = this;
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         else{
             sendData("s"+smsnr);
         }
-        Toast.makeText(getBaseContext(), "SendetSMS", Toast.LENGTH_SHORT).show();
+       /* Toast.makeText(getBaseContext(), "SendetSMS", Toast.LENGTH_SHORT).show();*/
     }
 
     public void call(String nr){
@@ -140,13 +143,13 @@ public class MainActivity extends AppCompatActivity {
             sendData("c"+nr);
         }
 
-        Toast.makeText(getBaseContext(), "Call", Toast.LENGTH_SHORT).show();
+       /* Toast.makeText(getBaseContext(), "Call", Toast.LENGTH_SHORT).show();*/
     }
 
     public void decall(){
        sendData("e");
        callflag=true;
-        Toast.makeText(getBaseContext(), "DeCall", Toast.LENGTH_SHORT).show();
+       /* Toast.makeText(getBaseContext(), "DeCall", Toast.LENGTH_SHORT).show();*/
     }
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
@@ -250,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void errorExit(String title, String message){
-        Toast.makeText(getBaseContext(), title + " - " + message, Toast.LENGTH_LONG).show();
+      /*  Toast.makeText(getBaseContext(), title + " - " + message, Toast.LENGTH_LONG).show();*/
         finish();
     }
 
@@ -302,6 +305,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void list(View v){
+
+        newtext.setVisibility(View.VISIBLE);
+
         pairedDevices = BA.getBondedDevices();
 
         ArrayList list = new ArrayList();
