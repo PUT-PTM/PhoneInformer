@@ -467,6 +467,25 @@ void Draw_Bell(uint16_t* tab)
 	PCD8544_x++;
 	PCD8544_Refresh();
 }
+void Draw_Logo(long int* tab)
+{
+	uint16_t c_height, c_width, i, j;
+	long int b;
+	int x = 28;
+	int y = 20;
+	PCD8544_GotoXY(x, y);
+	c_width = 28;
+	c_height = 20;
+	for (i = 0; i < c_width; i++) {
+		b = tab[i];
+		for (j = 0; j < c_height; j++) {
+			PCD8544_DrawPixel(PCD8544_x, (PCD8544_y + j), ((b >> j) & 1) ? PCD8544_Pixel_Set : PCD8544_Pixel_Clear);
+		}
+		PCD8544_x++;
+	}
+	PCD8544_x++;
+	PCD8544_Refresh();
+}
 void Draw_Envelope(uint16_t* tab)
 {
 	uint16_t c_height, c_width, i, b, j;
