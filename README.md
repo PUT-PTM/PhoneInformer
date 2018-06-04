@@ -1,10 +1,10 @@
 # PhoneInformer
 
 ## 1.Overview
-PhoneInformer is a project build on STM32. It receives of information, via Bluetooth, about incoming calls and SMS messages on smartphone, displays it on the screen and notifies with sound.
+PhoneInformer is a project build on STM32. It receives of information, via Bluetooth, about incoming calls and SMS messages on smartphone, displays it on the screen and notifies with sound. It is a modern answer for requisition related with old pager.
 
 ## 2.Description
-The project consists of an Android application and a STM32 application. Android app send information about calls and SMS to STM32 which displays received data on screen. If a number that contacts us is in our contacts list in smartphone, the name instead of number will be displayed on the screen. After receiving a message or a call, animations are displayed on the screen.
+The project consists of an Android application and a STM32 application. Android app send information about calls and SMS to STM32 which displays received data on screen. If a number that contacts us is in our contacts list in smartphone, the name instead of number will be displayed on the screen. After receiving a message or a call, animations are displayed on the screen. You can use PhoneInformer, wherever your phone is not welcome.
 
 ## 3.Tools
 * Microcontroller STM32F407VG DISCOVERY
@@ -41,10 +41,10 @@ Releases of programs used to create apps:
 * Android Studio 3.0.1
 
 ## 5.How to compile
-Compilation takes place without any special instructions.
+Compilation takes place without any special instructions, you need just compilators build in Android Studio and System Workbench.
 
 ## 6.Future improvements
-In the future, battery power supply can be can be added to the project. It can be also extended by adding control buttons and menu options.
+In the future, battery power supply can be can be added to the project. It can be also extended by adding control buttons and menu options. We will use Bluetooth 4.0 for a better range.
 
 ## 7.Attributions
 In project were used: 
