@@ -121,7 +121,7 @@ void USART1_IRQHandler(void)
 						j = 0;
 						is_calling = 1;
 					}
-			        else if (sign != 'e')
+			        else if (!is_calling)
 			        {
 					   name[j] = sign;
 					   j++;
