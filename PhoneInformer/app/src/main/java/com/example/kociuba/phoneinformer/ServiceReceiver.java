@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 public class ServiceReceiver extends BroadcastReceiver {
 
+
+    boolean flag = true;
+    boolean flag2 = true;
     int a =0;
 
     String TAG = "ServiceReciver";
@@ -33,24 +36,20 @@ public class ServiceReceiver extends BroadcastReceiver {
                 MainActivity activity = MainActivity.instance;
 
 
-
-
-                    if (activity != null) {
-                        // we are calling here activity's method
-                        if (stateStr.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
-                            Log.d(TAG, "Call function");
-                            activity.call(incomingNumber);
-                        }
+                if (activity != null && flag == true) {
+                    // we are calling here activity's method
+                    if (stateStr.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                        Log.d(TAG, "Call function");
+                        activity.call(incomingNumber);
+                        flag = false;
                     }
+                }
 
-
-
-
-              if (stateStr.equals(TelephonyManager.EXTRA_STATE_IDLE) || stateStr.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) { // warunek konczenia
-                      Log.d(TAG, "DeCall function");
-                      activity.decall();
-
-               }
+                if (flag2 == true && stateStr.equals(TelephonyManager.EXTRA_STATE_IDLE)){ // warunek konczenia
+                    activity.decall();
+                    Log.d(TAG, "DECall function");
+                    flag2 =false;
+                }
 
             }
         },PhoneStateListener.LISTEN_CALL_STATE);
