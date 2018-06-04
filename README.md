@@ -35,6 +35,7 @@ Wire connections:
  VCC -> 3.3V
  GND -> GND
  5V -> 5V
+ 
 Releases of programs used to create apps:
 * System Workbench for STM32 based on Eclipse IDE version: 4.6.3
 * Android Studio 3.0.1
